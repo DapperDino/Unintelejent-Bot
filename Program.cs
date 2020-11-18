@@ -1,10 +1,14 @@
 ﻿using DSharpPlus;
-using DSharpPlus.Entities;
+using DSharpPlus.CommandsNext;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using System.IO;
 using System.Threading.Tasks;
 using UnintelejentBot;
+using UnintelejentBot.Commands;
 using UnintelejentBot.Events;
+
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 MainAsync().GetAwaiter().GetResult();
 
@@ -24,6 +28,14 @@ static async Task MainAsync()
     {
         Token = config.Token
     });
+
+    // Set up command settings
+    var commands = discord.UseCommandsNext(new CommandsNextConfiguration
+    {
+        StringPrefixes = new[] { "!" },
+    });
+
+    commands.RegisterCommands<GuildDataModule>();
 
     // Subscribe to the necessary events
     discord.GuildMemberAdded += GuildMemberAddedEvent.Handle;
