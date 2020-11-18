@@ -1,4 +1,5 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
