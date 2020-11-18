@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
@@ -19,61 +20,53 @@ namespace UnintelejentBot.Commands
 
             var rolesSheet = p.Workbook.Worksheets.Add("Roles");
 
-            rolesSheet.Cells["A1"].Value = "Tank";
-            rolesSheet.Cells["B1"].Value = "Healer";
-            rolesSheet.Cells["C1"].Value = "DPS";
+            var members = await ctx.Guild.GetAllMembersAsync();
 
-            using (var range = rolesSheet.Cells[1, 1, 1, 3])
+            for (int i = 0; i < Constants.RoleNames.Length; i++)
+            {
+                string roleName = Constants.RoleNames[i];
+
+                rolesSheet.Cells[1, i + 1].Value = roleName;
+
+                var membersWithRole = members.Where
+                    (x => x.Roles.Any
+                    (x => x.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase)))
+                    .ToArray();
+
+                for (int j = 0; j < membersWithRole.Length; j++)
+                {
+                    rolesSheet.Cells[j + 2, i + 1].Value = membersWithRole[j].DisplayName;
+                }
+            }
+
+            using (var range = rolesSheet.Cells[1, 1, 1, Constants.RoleNames.Length])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
-            }
-
-            int tanksCount = 1;
-            int healersCount = 1;
-            int dpsCount = 1;
-
-            var members = await ctx.Guild.GetAllMembersAsync();
-
-            foreach (var member in members)
-            {
-                if (member.Roles.Any(x => x.Name.Equals("Tank", StringComparison.OrdinalIgnoreCase)))
-                {
-                    tanksCount++;
-                    rolesSheet.Cells[$"A{tanksCount}"].Value = member.DisplayName;
-                }
-
-                if (member.Roles.Any(x => x.Name.Equals("Healer", StringComparison.OrdinalIgnoreCase)))
-                {
-                    healersCount++;
-                    rolesSheet.Cells[$"B{healersCount}"].Value = member.DisplayName;
-                }
-
-                if (member.Roles.Any(x => x.Name.Equals("DPS", StringComparison.OrdinalIgnoreCase)))
-                {
-                    dpsCount++;
-                    rolesSheet.Cells[$"C{dpsCount}"].Value = member.DisplayName;
-                }
             }
 
             rolesSheet.Cells.AutoFitColumns();
 
             var classesSheet = p.Workbook.Worksheets.Add("Classes");
 
-            classesSheet.Cells["A1"].Value = "Warrior";
-            classesSheet.Cells["B1"].Value = "Paladin";
-            classesSheet.Cells["C1"].Value = "Hunter";
-            classesSheet.Cells["D1"].Value = "Rogue";
-            classesSheet.Cells["E1"].Value = "Priest";
-            classesSheet.Cells["F1"].Value = "Shaman";
-            classesSheet.Cells["G1"].Value = "Mage";
-            classesSheet.Cells["H1"].Value = "Warlock";
-            classesSheet.Cells["I1"].Value = "Monk";
-            classesSheet.Cells["J1"].Value = "Druid";
-            classesSheet.Cells["K1"].Value = "Demon Hunter";
-            classesSheet.Cells["L1"].Value = "Death Knight";
+            for (int i = 0; i < Constants.ClassNames.Length; i++)
+            {
+                string className = Constants.ClassNames[i];
 
-            using (var range = classesSheet.Cells[1, 1, 1, 12])
+                classesSheet.Cells[1, i + 1].Value = className;
+
+                var membersWithRole = members.Where
+                    (x => x.Roles.Any
+                    (x => x.Name.Equals(className, StringComparison.OrdinalIgnoreCase)))
+                    .ToArray();
+
+                for (int j = 0; j < membersWithRole.Length; j++)
+                {
+                    classesSheet.Cells[j + 2, i + 1].Value = membersWithRole[j].DisplayName;
+                }
+            }
+
+            using (var range = classesSheet.Cells[1, 1, 1, Constants.ClassNames.Length])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
