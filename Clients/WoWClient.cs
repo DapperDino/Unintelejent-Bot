@@ -28,14 +28,18 @@ namespace UnintelejentBot.Clients
         {
             string url = $"/profile/wow/character/argent-dawn/{characterName.ToLower()}";
 
-            return JsonConvert.DeserializeObject<CharacterProfile>(await GetAPIRequest(url, "profile-eu"));
+            string response = await GetAPIRequest(url, "profile-eu");
+
+            return JsonConvert.DeserializeObject<CharacterProfile>(response);
         }
 
         public async Task<CharacterMedia> GetCharacterMediaSummary(string characterName)
         {
             string url = $"/profile/wow/character/argent-dawn/{characterName.ToLower()}/character-media";
 
-            return JsonConvert.DeserializeObject<CharacterMedia>(await GetAPIRequest(url, "profile-eu"));
+            string response = await GetAPIRequest(url, "profile-eu");
+
+            return JsonConvert.DeserializeObject<CharacterMedia>(response);
         }
 
         private async Task<string> GetAPIRequest(string url, string requestNamespace)
@@ -55,9 +59,9 @@ namespace UnintelejentBot.Clients
             {
                 response = await httpClient.GetStringAsync(url);
             }
-            catch (HttpRequestException httpRequestException)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Http request exception: [{httpRequestException.Message}]");
+                Console.WriteLine($"Error completing request: [{ex.Message}]");
             }
 
             return response;

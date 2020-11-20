@@ -17,7 +17,7 @@ namespace UnintelejentBot
             new Characterclass("Paladin", new DiscordColor("#f48cba")),
             new Characterclass("Hunter", new DiscordColor("#aad372")),
             new Characterclass("Rogue", new DiscordColor("#fff468")),
-            new Characterclass("Priest", new DiscordColor("#ffffff")),
+            new Characterclass("Priest", new DiscordColor("#eeeeee")),
             new Characterclass("Shaman", new DiscordColor("#0070dd")),
             new Characterclass("Mage", new DiscordColor("#3fc7eb")),
             new Characterclass("Warlock", new DiscordColor("#8788ee")),

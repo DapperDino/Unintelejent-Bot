@@ -23,10 +23,25 @@ namespace UnintelejentBot.Commands
 
             CharacterMedia characterMedia = await WoWClient.GetCharacterMediaSummary(characterName);
 
+            if (characterProfile == null || characterMedia == null)
+            {
+                var errorEmbed = new DiscordEmbedBuilder
+                {
+                    Title = "Something Went Wrong",
+                    Description = "Make sure that you have entered a valid character name for Argent Dawn",
+                    Color = DiscordColor.Red
+                };
+
+                await ctx.Channel.SendMessageAsync(embed: errorEmbed);
+
+                return;
+            }
+
             var profileEmbed = new DiscordEmbedBuilder
             {
-                Title = characterProfile.Name,
-                Description = $"{characterProfile.Gender.Name} {characterProfile.Race.Name}, {characterProfile.Spec.Name} {characterProfile.Class.Name}",
+                Title = characterProfile.ActiveTitle?.DisplayString.Replace("{name}", characterProfile.Name) ?? characterProfile.Name,
+                Url = $"https://worldofwarcraft.com/en-gb/character/eu/argent-dawn/{characterProfile.Name}",
+                Description = $"Level {characterProfile.Level} {characterProfile.Faction.Name}, {characterProfile.Race.Name} {characterProfile.ActiveSpec.Name} {characterProfile.Class.Name}",
                 Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                 {
                     Url = characterMedia.Assets?.FirstOrDefault(x => x.Key == "avatar").Value ?? characterMedia.AvatarUrl,
@@ -34,6 +49,8 @@ namespace UnintelejentBot.Commands
                 ImageUrl = characterMedia.Assets?.FirstOrDefault(x => x.Key == "main").Value ?? characterMedia.RenderUrl,
                 Color = Constants.Classes.FirstOrDefault(x => x.Name == characterProfile.Class.Name).Colour
             };
+
+            profileEmbed.AddField($"Stats", $"Item Level: {characterProfile.ItemLevel}\nAchievement Points: {characterProfile.AchievementPoints}");
 
             await ctx.Channel.SendMessageAsync(embed: profileEmbed);
         }

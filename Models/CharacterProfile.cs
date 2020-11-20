@@ -7,23 +7,29 @@ namespace UnintelejentBot.Models
     {
         [JsonProperty("name")]
         public string Name { get; set; }
-        [JsonProperty("gender")]
-        public Gender Gender { get; set; }
+        [JsonProperty("faction")]
+        public Faction Faction { get; set; }
         [JsonProperty("race")]
         public Race Race { get; set; }
         [JsonProperty("character_class")]
         public CharacterClass Class { get; set; }
         [JsonProperty("active_spec")]
-        public ActiveSpec Spec { get; set; }
-        [JsonProperty("media")]
-        public Media Media { get; set; }
+        public ActiveSpec ActiveSpec { get; set; }
+        [JsonProperty("level")]
+        public int Level { get; set; }
+        [JsonProperty("achievement_points")]
+        public int AchievementPoints { get; set; }
+        [JsonProperty("average_item_level")]
+        public int ItemLevel { get; set; }
+        [JsonProperty("active_title")]
+        public ActiveTitle ActiveTitle { get; set; }
     }
 
     [JsonObject]
-    public class Gender
+    public class Faction
     {
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name;
     }
 
     [JsonObject]
@@ -48,9 +54,9 @@ namespace UnintelejentBot.Models
     }
 
     [JsonObject]
-    public class Media
+    public class ActiveTitle
     {
-        [JsonProperty("name")]
-        public string Href { get; set; }
+        [JsonProperty("display_string")]
+        public string DisplayString { get; set; }
     }
 }
