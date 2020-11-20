@@ -7,11 +7,37 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnintelejentBot.Clients;
+using UnintelejentBot.Models;
 
 namespace UnintelejentBot.Commands
 {
-    public class GuildDataModule : BaseCommandModule
+    public class GuildModule : BaseCommandModule
     {
+        public WoWClient WoWClient { private get; set; }
+
+        [Command("Profile")]
+        public async Task Test(CommandContext ctx, string characterName)
+        {
+            CharacterProfile characterProfile = await WoWClient.GetCharacterProfileSummary(characterName);
+
+            CharacterMedia characterMedia = await WoWClient.GetCharacterMediaSummary(characterName);
+
+            var profileEmbed = new DiscordEmbedBuilder
+            {
+                Title = characterProfile.Name,
+                Description = $"{characterProfile.Gender.Name} {characterProfile.Race.Name}, {characterProfile.Spec.Name} {characterProfile.Class.Name}",
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = characterMedia.Assets?.FirstOrDefault(x => x.Key == "avatar").Value ?? characterMedia.AvatarUrl,
+                },
+                ImageUrl = characterMedia.Assets?.FirstOrDefault(x => x.Key == "main").Value ?? characterMedia.RenderUrl,
+                Color = Constants.Classes.FirstOrDefault(x => x.Name == characterProfile.Class.Name).Colour
+            };
+
+            await ctx.Channel.SendMessageAsync(embed: profileEmbed);
+        }
+
         [Command("GuildData")]
         [RequireRoles(RoleCheckMode.Any, "Moderator")]
         public async Task GenerateGuildDataCommand(CommandContext ctx)
@@ -49,9 +75,9 @@ namespace UnintelejentBot.Commands
 
             var classesSheet = p.Workbook.Worksheets.Add("Classes");
 
-            for (int i = 0; i < Constants.ClassNames.Length; i++)
+            for (int i = 0; i < Constants.Classes.Length; i++)
             {
-                string className = Constants.ClassNames[i];
+                string className = Constants.Classes[i].Name;
 
                 classesSheet.Cells[1, i + 1].Value = className;
 
@@ -66,7 +92,7 @@ namespace UnintelejentBot.Commands
                 }
             }
 
-            using (var range = classesSheet.Cells[1, 1, 1, Constants.ClassNames.Length])
+            using (var range = classesSheet.Cells[1, 1, 1, Constants.Classes.Length])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Border.BorderAround(ExcelBorderStyle.Thin);

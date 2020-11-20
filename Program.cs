@@ -1,10 +1,11 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OfficeOpenXml;
-using System.IO;
+using System;
 using System.Threading.Tasks;
-using UnintelejentBot;
+using UnintelejentBot.Clients;
 using UnintelejentBot.Commands;
 using UnintelejentBot.Events;
 
@@ -14,28 +15,33 @@ MainAsync().GetAwaiter().GetResult();
 
 static async Task MainAsync()
 {
-    Config config;
-
-    // Read the config file data
-    using (StreamReader r = new StreamReader("Config.json"))
-    {
-        string json = r.ReadToEnd();
-        config = JsonConvert.DeserializeObject<Config>(json);
-    }
+    // Load the config data
+    var config = new ConfigurationBuilder()
+        .SetBasePath(AppContext.BaseDirectory)
+        .AddJsonFile("config.json")
+        .Build();
 
     // Create the bot instance
     var discord = new DiscordClient(new DiscordConfiguration
     {
-        Token = config.Token
+        Token = config["Token"]
     });
+
+    // Set up dependency injection
+    var services = new ServiceCollection()
+        .AddSingleton(config)
+        .AddHttpClient()
+        .AddSingleton<WoWClient>()
+        .BuildServiceProvider();
 
     // Set up command settings
     var commands = discord.UseCommandsNext(new CommandsNextConfiguration
     {
         StringPrefixes = new[] { "!" },
+        Services = services
     });
 
-    commands.RegisterCommands<GuildDataModule>();
+    commands.RegisterCommands<GuildModule>();
 
     // Subscribe to the necessary events
     discord.GuildMemberAdded += GuildMemberAddedEvent.Handle;
